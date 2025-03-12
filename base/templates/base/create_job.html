@@ -1,0 +1,21 @@
+﻿{% extends 'base.html' %}
+
+{% block content %}
+<h2>Post a New Job</h2>
+<form method="POST">
+    {% csrf_token %}
+    <label>Project Name:</label>
+    <input type="text" name="project_name" required><br>
+
+    <label>Description:</label>
+    <textarea name="description" required></textarea><br>
+
+    <label>Budget ($):</label>
+    <input type="number" name="budget" required><br>
+
+    <label>Skills Required:</label>
+    <input type="text" name="skills_required" required><br>
+
+    <button type="submit">Create Job</button>
+</form>
+{% endblock %}
