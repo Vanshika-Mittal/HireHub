@@ -1,0 +1,18 @@
+﻿<form method="GET">
+    <label>Min Pay:</label>
+    <input type="number" name="min_pay" placeholder="Minimum Salary">
+    
+    <label>Max Pay:</label>
+    <input type="number" name="max_pay" placeholder="Maximum Salary">
+    
+    <button type="submit">Search</button>
+</form>
+
+<h2>Job Listings</h2>
+<ul>
+    {% for job in jobs %}
+        <li>{{ job.title }} - ${{ job.budget }}</li>
+    {% empty %}
+        <li>No jobs found in this range.</li>
+    {% endfor %}
+</ul>

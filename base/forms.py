@@ -12,4 +12,15 @@ class CustomUserCreationForm(UserCreationForm):
 class JobForm(ModelForm):
     class Meta:
         model = Job
-        fields = ['title', 'description', 'budget', 'deadline']
+        fields = ['title', 'topic', 'description', 'budget', 'deadline']
+
+# class RegisterForm(UserCreationForm):
+#     USER_TYPES = (
+#         ("client", "Client"),
+#         ("freelancer", "Freelancer"),
+#     )
+#     user_type = forms.ChoiceField(choices=USER_TYPES, widget=forms.RadioSelect)
+
+#     class Meta:
+#         model = User
+#         fields = ["username", "email", "password1", "password2", "user_type"]

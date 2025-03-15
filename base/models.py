@@ -2,7 +2,6 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-# Custom User Model (Extending Django's User)
 class User(User):
     USER_TYPES = [
         ('Freelancer', 'Freelancer'),
@@ -35,7 +34,7 @@ class ClientProfile(models.Model):
     client = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     company_name = models.CharField(max_length=255, blank=True, null=True)
     business_type = models.CharField(max_length=255, blank=True, null=True)
-    contact_info = models.CharField(max_length=255, blank=True)
+    # contact_info = models.CharField(max_length=255, blank=True)
     rating = models.DecimalField(max_digits=3, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
@@ -82,9 +81,12 @@ class Bid(models.Model):
 
 class Job(models.Model):
     title = models.CharField(max_length = 255)
+    topic = models.CharField(max_length = 255, default = "General")
     description = models.TextField()
     budget = models.DecimalField(max_digits=10, decimal_places=2)
     deadline = models.DateField()
+    # created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # topic = models.CharField(max_length = 255)
     # client = models.ForeignKey(User, on_delete=models.CASCADE, null = True)  # Link job to user
 
     def __str__(self):
