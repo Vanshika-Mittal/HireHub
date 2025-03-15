@@ -22,7 +22,7 @@
         <hr>
         {% for topic in topics %}
             <div>
-                <a href="{% url '' %}?q={{topic}}">{{topic}}</a>
+                <a href="{% url 'job-list' %}?q={{topic}}">{{topic}}</a>
             </div>
         {% endfor %}
     </aside>
