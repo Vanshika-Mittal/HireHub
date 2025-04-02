@@ -29,7 +29,8 @@ INSTALLED_APPS = [
     'base.apps.BaseConfig',
     'rest_framework',
     'rest_framework.authtoken',
-    'api'
+    'api',
+    'django_filters'
 ]
 
 
@@ -70,6 +71,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',  # ✅ Enable Token Auth
         'rest_framework.authentication.SessionAuthentication',
     ],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
 # Database

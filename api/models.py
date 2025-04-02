@@ -1,11 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator 
 
 class Job(models.Model):
     project_name = models.CharField(max_length=255)
     description = models.TextField()
     client = models.ForeignKey(User, on_delete=models.CASCADE)  # Job posted by a client
-    budget = models.DecimalField(max_digits=10, decimal_places=2)
+    budget = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(1)])
     skills_required = models.JSONField(default=list, blank=True)  # Store skills as a list
     status = models.CharField(
         max_length=10,
