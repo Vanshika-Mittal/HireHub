@@ -1,0 +1,46 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api";
+import "../styles/Auth.css";
+
+function Login() {
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const { data } = await api.get(`/users?email=${formData.email}&password=${formData.password}`);
+      if (data.length > 0) {
+        localStorage.setItem("token", data[0].token);
+        localStorage.setItem("role", data[0].role);
+        alert("Login successful!");
+        navigate(data[0].role === "client" ? "/dashboard-client" : "/dashboard-freelancer");
+      } else {
+        setError("Invalid email or password.");
+      }
+    } catch (err) {
+      setError("Login failed. Try again.");
+    }
+  };
+
+  return (
+    <div className="auth-container">
+      <div className="auth-box">
+        <h2>Login</h2>
+        {error && <p className="error-message">{error}</p>}
+        <form onSubmit={handleSubmit}>
+          <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
+          <input type="password" name="password" placeholder="Password" onChange={handleChange} required />
+          <button type="submit">Login</button>
+        </form>
+        <p>Don't have an account? <a href="/signup">Sign Up</a></p>
+      </div>
+    </div>
+  );
+}
+
+export default Login;

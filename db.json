@@ -1,0 +1,19 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "testuser",
+      "email": "test@example.com",
+      "password": "password123",
+      "role": "client",
+      "token": "mock-jwt-token"
+    },
+    {
+      "id": "9b31",
+      "username": "seokryuu_",
+      "email": "nehachandrashekar.231cs137@nitk.edu.in",
+      "password": "neha",
+      "role": "freelancer"
+    }
+  ]
+}
