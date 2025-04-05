@@ -15,11 +15,35 @@ function Login({ setIsAuthenticated, setUserRole }) {
     try {
       const { data } = await api.get(`/users?email=${formData.email}&password=${formData.password}`);
       if (data.length > 0) {
-        localStorage.setItem("token", data[0].token);
-        localStorage.setItem("role", data[0].role);
+        const user = data[0];
+        localStorage.setItem("token", user.token);
+        localStorage.setItem("role", user.role);
         setIsAuthenticated(true);
-        setUserRole(data[0].role);
-        alert("Login successful!");
+        setUserRole(user.role);
+
+        // Check if user has a profile
+        const profile = localStorage.getItem(`${user.role}Profile`);
+        if (!profile) {
+          // Create blank profile for new users
+          const blankProfile = user.role === 'freelancer' ? {
+            name: "",
+            email: "",
+            location: "",
+            age: "",
+            basePayPerHour: "",
+            description: "",
+            skills: []
+          } : {
+            name: "",
+            email: "",
+            companyName: "",
+            companySize: "",
+            industry: "",
+            website: "",
+            description: ""
+          };
+          localStorage.setItem(`${user.role}Profile`, JSON.stringify(blankProfile));
+        }
         navigate("/dashboard");
       } else {
         setError("Invalid email or password.");

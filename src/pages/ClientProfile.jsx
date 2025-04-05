@@ -1,17 +1,30 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/ClientProfile.css';
 
 function ClientProfile() {
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
-    name: "Tech Corp",
-    email: "contact@techcorp.com",
-    companyName: "Tech Corp",
-    companySize: "50-200",
-    industry: "Technology",
-    website: "www.techcorp.com",
-    description: "A leading technology company specializing in software development and digital solutions."
+    name: "",
+    email: "",
+    companyName: "",
+    companySize: "",
+    industry: "",
+    website: "",
+    description: ""
   });
+
+  useEffect(() => {
+    // Check if profile exists in localStorage
+    const storedProfile = localStorage.getItem('clientProfile');
+    if (storedProfile) {
+      setProfile(JSON.parse(storedProfile));
+    } else {
+      // If no profile exists, redirect to questionnaire
+      navigate('/dashboard');
+    }
+  }, [navigate]);
 
   const [editForm, setEditForm] = useState({ ...profile });
 
@@ -22,6 +35,7 @@ function ClientProfile() {
 
   const handleSave = () => {
     setProfile(editForm);
+    localStorage.setItem('clientProfile', JSON.stringify(editForm));
     setIsEditing(false);
   };
 
@@ -37,7 +51,7 @@ function ClientProfile() {
     <div className="profile-container">
       <div className="profile-card">
         <div className="profile-header">
-          <h1>{profile.companyName}</h1>
+          <h1>{profile.companyName || "Not set"}</h1>
           <button onClick={handleEdit} className="edit-btn">Edit Profile</button>
         </div>
 
@@ -134,19 +148,19 @@ function ClientProfile() {
               <div className="profile-info">
                 <div className="info-item">
                   <h3>Company Name</h3>
-                  <p>{profile.companyName}</p>
+                  <p>{profile.companyName || "Not set"}</p>
                 </div>
                 <div className="info-item">
                   <h3>Company Size</h3>
-                  <p>{profile.companySize} employees</p>
+                  <p>{profile.companySize || "Not set"}</p>
                 </div>
                 <div className="info-item">
                   <h3>Industry</h3>
-                  <p>{profile.industry}</p>
+                  <p>{profile.industry || "Not set"}</p>
                 </div>
                 <div className="info-item">
                   <h3>Website</h3>
-                  <p>{profile.website}</p>
+                  <p>{profile.website || "Not set"}</p>
                 </div>
               </div>
             </div>
@@ -156,18 +170,18 @@ function ClientProfile() {
               <div className="profile-info">
                 <div className="info-item">
                   <h3>Contact Person</h3>
-                  <p>{profile.name}</p>
+                  <p>{profile.name || "Not set"}</p>
                 </div>
                 <div className="info-item">
                   <h3>Email</h3>
-                  <p>{profile.email}</p>
+                  <p>{profile.email || "Not set"}</p>
                 </div>
               </div>
             </div>
 
             <div className="profile-section">
               <h2>Company Description</h2>
-              <p className="description">{profile.description}</p>
+              <p className="description">{profile.description || "Not set"}</p>
             </div>
           </>
         )}

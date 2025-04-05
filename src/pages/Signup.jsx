@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../api";
 import "../styles/Auth.css";
 
-function Signup() {
+function Signup({ setIsAuthenticated, setUserRole }) {
   const [formData, setFormData] = useState({ username: "", email: "", password: "", role: "client" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -15,8 +15,34 @@ function Signup() {
     try {
       const response = await api.post("/users", formData);
       if (response.status === 201) {
-        alert("Signup successful!");
-        navigate("/login");
+        // Set token and role
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("role", formData.role);
+        setIsAuthenticated(true);
+        setUserRole(formData.role);
+        
+        // Create blank profile for new users
+        const blankProfile = formData.role === 'freelancer' ? {
+          name: "",
+          email: "",
+          location: "",
+          age: "",
+          basePayPerHour: "",
+          description: "",
+          skills: []
+        } : {
+          name: "",
+          email: "",
+          companyName: "",
+          companySize: "",
+          industry: "",
+          website: "",
+          description: ""
+        };
+        localStorage.setItem(`${formData.role}Profile`, JSON.stringify(blankProfile));
+        
+        // New user, redirect to questionnaire
+        navigate("/dashboard");
       }
     } catch (err) {
       setError("Signup failed. Try again.");

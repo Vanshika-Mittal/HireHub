@@ -49,6 +49,20 @@
       "email": "habibimeow@gmail.com",
       "password": "muah",
       "role": "freelancer"
+    },
+    {
+      "id": "4858",
+      "username": "arav",
+      "email": "arav@gmail.com",
+      "password": "alien",
+      "role": "freelancer"
+    },
+    {
+      "id": "b8c2",
+      "username": "oreo",
+      "email": "oreobrownie@gmail.com",
+      "password": "brownie",
+      "role": "client"
     }
   ]
 }
