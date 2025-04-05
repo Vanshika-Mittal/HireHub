@@ -28,3 +28,10 @@ class JobApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobApplication
         fields = "__all__"
+
+class BidSerializer(serializers.ModelSerializer):
+    freelancer = serializers.ReadOnlyField(source="freelancer.username")
+
+    class Meta:
+        model = Bid
+        fields = "__all__"

@@ -5,10 +5,12 @@ from .serializers import JobSerializer, JobApplicationSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework import status
 from .serializers import BidSerializer
 from django.db import transaction
 from decimal import Decimal
+from django.contrib.auth.models import User
 
 class BidViewSet(viewsets.ModelViewSet):
     queryset = Bid.objects.all().order_by("-bid_date")
@@ -72,6 +74,71 @@ class JobViewSet(viewsets.ModelViewSet):
         if job.client != request.user:
             return Response({"error": "You are not allowed to delete this job."}, status=403)
         return super().destroy(request, *args, **kwargs)
+
+    @action(detail=True, methods=["get", "post"], url_path="select-freelancer")
+    def select_freelancer(self, request, pk=None):
+        try:
+            job = Job.objects.get(pk=pk)
+        except Job.DoesNotExist:
+            return Response({"error": "Job not found."}, status=404)
+        # job = self.get_object()
+
+        if job.client != request.user:
+            return Response({"error": "Only the client can access or select a freelancer for this job."}, status=status.HTTP_403_FORBIDDEN)
+
+        # === GET request: Show all bids for this job ===
+        if request.method == 'GET':
+            bids = Bid.objects.filter(job=job).order_by('-bid_date')
+            serializer = BidSerializer(bids, many=True)
+            return Response(serializer.data)
+
+        # === POST request: Select a freelancer ===
+        # freelancer_id = request.data.get("freelancer_id")
+        # if not freelancer_id:
+        #     return Response({"error": "Freelancer ID required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # if job.status != "open":
+        #     return Response({"error": "Freelancer already selected or job not open."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # try:
+        #     with transaction.atomic():
+        #         selected_app = JobApplication.objects.get(job=job, freelancer_id=freelancer_id)
+        #         selected_app.status = "accepted"
+        #         selected_app.save()
+
+        #         # Reject all others
+        #         JobApplication.objects.filter(job=job).exclude(freelancer_id=freelancer_id).update(status="rejected")
+
+        #         job.status = "in_progress"
+        #         job.selected_freelancer = selected_app.freelancer
+        #         job.save()
+        # except JobApplication.DoesNotExist:
+        #     return Response({"error": "Freelancer did not apply for this job."}, status=status.HTTP_404_NOT_FOUND)
+
+        # return Response({"message": f"{selected_app.freelancer.username} has been selected."})
+##################
+        if request.method == "POST":
+            freelancer_id = request.data.get("selected_freelancer")
+            if not freelancer_id:
+                return Response({"error": "freelancer_id is required"}, status=400)
+
+            try:
+                selected_freelancer = User.objects.get(id=freelancer_id)
+                selected_bid = Bid.objects.get(job=job, freelancer=selected_freelancer)
+            except (User.DoesNotExist, Bid.DoesNotExist):
+                return Response({"error": "Invalid freelancer or bid"}, status=400)
+
+            with transaction.atomic():
+                selected_bid.status = "accepted"
+                selected_bid.save()
+
+                Bid.objects.filter(job=job).exclude(id=selected_bid.id).update(status="rejected")
+
+                job.status = "in progress"
+                job.selected_freelancer = selected_freelancer
+                job.save()
+
+            return Response({"message": "Freelancer selected and job updated."})
 
 class JobApplicationViewSet(viewsets.ModelViewSet):
     queryset = JobApplication.objects.all().order_by("-submitted_at")
