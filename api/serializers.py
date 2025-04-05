@@ -1,6 +1,13 @@
 from rest_framework import serializers
-from .models import Job, JobApplication
+from .models import Job, JobApplication, Bid
 from django.contrib.auth.models import User
+
+class BidSerializer(serializers.ModelSerializer):
+    freelancer = serializers.ReadOnlyField(source="freelancer.username")  # Show freelancer name
+
+    class Meta:
+        model = Bid
+        fields = "__all__"
 
 class JobSerializer(serializers.ModelSerializer):
     client_id = serializers.PrimaryKeyRelatedField(source="client", queryset=User.objects.all(), write_only=True)

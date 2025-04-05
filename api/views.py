@@ -1,8 +1,43 @@
-﻿from rest_framework import viewsets, permissions
-from .models import Job, JobApplication
+﻿from rest_framework import viewsets, permissions, status
+from .models import Job, JobApplication, Bid
 from .filters import JobFilter
 from .serializers import JobSerializer, JobApplicationSerializer
 from django_filters.rest_framework import DjangoFilterBackend
+
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import BidSerializer
+from django.db import transaction
+from decimal import Decimal
+
+class BidViewSet(viewsets.ModelViewSet):
+    queryset = Bid.objects.all().order_by("-bid_date")
+    serializer_class = BidSerializer
+    permission_classes = [permissions.IsAuthenticated]  # Only logged-in freelancers can bid
+
+    def perform_create(self, serializer):
+        """Ensure only one bid is placed at a time and a freelancer can bid once per job."""
+        job_id = self.request.data.get("job")
+        freelancer = self.request.user
+        bid_amount = self.request.data.get("bid_amount")
+
+        try:
+            bid_amount = Decimal(bid_amount)
+        except (TypeError, ValueError):
+            return Response({"error": "Invalid bid amount."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        with transaction.atomic():  # Prevent simultaneous bidding
+            job = Job.objects.select_for_update().get(id=job_id)
+            
+            # Get the highest existing bid for the job
+            highest_bid = Bid.objects.filter(job=job).order_by("-bid_amount").first()
+            
+            if Bid.objects.filter(job=job, freelancer=freelancer).exists():
+                raise ValueError("You have already placed a bid for this job.")
+                # return Response({"error": "You have already placed a bid for this job."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            serializer.save(freelancer=freelancer)
 
 class JobViewSet(viewsets.ModelViewSet):
     queryset = Job.objects.all().order_by("-created_at")

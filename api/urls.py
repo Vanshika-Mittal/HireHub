@@ -1,10 +1,11 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import JobViewSet, JobApplicationViewSet
+from .views import JobViewSet, JobApplicationViewSet, BidViewSet
 
 router = DefaultRouter()
 router.register(r"jobs", JobViewSet, basename='job')
 router.register(r"applications", JobApplicationViewSet)
+router.register(r"bids", BidViewSet)
 
 urlpatterns = [
     path("api/", include(router.urls)),

@@ -1,6 +1,24 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator 
+from django.utils.timezone import now
+
+class Bid(models.Model):
+    job = models.ForeignKey("Job", on_delete=models.CASCADE, related_name="bids")
+    freelancer = models.ForeignKey(User, on_delete=models.CASCADE)
+    bid_amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(1)])
+    bid_date = models.DateTimeField(default=now)
+    status = models.CharField(
+        max_length=10,
+        choices=[("pending", "Pending"), ("accepted", "Accepted"), ("rejected", "Rejected")],
+        default="pending"
+    )
+
+    class Meta:
+        unique_together = ('job', 'freelancer')  # Ensures a freelancer can bid only once per job
+
+    def __str__(self):
+        return f"{self.freelancer.username} bid {self.bid_amount} on {self.job.project_name}"
 
 class Job(models.Model):
     project_name = models.CharField(max_length=255)
