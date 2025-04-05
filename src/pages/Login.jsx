@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../api";
 import "../styles/Auth.css";
 
-function Login() {
+function Login({ setIsAuthenticated, setUserRole }) {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -17,8 +17,10 @@ function Login() {
       if (data.length > 0) {
         localStorage.setItem("token", data[0].token);
         localStorage.setItem("role", data[0].role);
+        setIsAuthenticated(true);
+        setUserRole(data[0].role);
         alert("Login successful!");
-        navigate(data[0].role === "client" ? "/dashboard-client" : "/dashboard-freelancer");
+        navigate("/dashboard");
       } else {
         setError("Invalid email or password.");
       }

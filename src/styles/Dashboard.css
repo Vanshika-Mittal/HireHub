@@ -1,0 +1,48 @@
+.dashboard {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  text-align: center;
+}
+
+h2 {
+  color: #333;
+}
+
+.profile {
+  margin-bottom: 20px;
+  padding: 15px;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+
+.profile h3 {
+  color: #555;
+}
+
+.profile p {
+  margin: 5px 0;
+}
+
+.dashboard-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.dashboard-actions button {
+  padding: 10px 15px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.dashboard-actions button:hover {
+  background-color: #0056b3;
+}

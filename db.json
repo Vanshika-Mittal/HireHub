@@ -14,6 +14,13 @@
       "email": "nehachandrashekar.231cs137@nitk.edu.in",
       "password": "neha",
       "role": "freelancer"
+    },
+    {
+      "id": "c537",
+      "username": "neha",
+      "email": "nehachandrashekar710@gmail.com",
+      "password": "nitk",
+      "role": "client"
     }
   ]
 }
