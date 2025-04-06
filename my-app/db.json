@@ -1,0 +1,68 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "testuser",
+      "email": "test@example.com",
+      "password": "password123",
+      "role": "client",
+      "token": "mock-jwt-token"
+    },
+    {
+      "id": "9b31",
+      "username": "seokryuu_",
+      "email": "nehachandrashekar.231cs137@nitk.edu.in",
+      "password": "neha",
+      "role": "freelancer"
+    },
+    {
+      "id": "c537",
+      "username": "neha",
+      "email": "nehachandrashekar710@gmail.com",
+      "password": "nitk",
+      "role": "client"
+    },
+    {
+      "id": "f622",
+      "username": "chandr",
+      "email": "chandru.mcf@gmail.com",
+      "password": "c",
+      "role": "freelancer"
+    },
+    {
+      "id": "d922",
+      "username": "alana",
+      "email": "alana@gmail.com",
+      "password": "alana",
+      "role": "client"
+    },
+    {
+      "id": "d311",
+      "username": "ala",
+      "email": "alana@gmail.com",
+      "password": "alan",
+      "role": "client"
+    },
+    {
+      "id": "f427",
+      "username": "habibi",
+      "email": "habibimeow@gmail.com",
+      "password": "muah",
+      "role": "freelancer"
+    },
+    {
+      "id": "4858",
+      "username": "arav",
+      "email": "arav@gmail.com",
+      "password": "alien",
+      "role": "freelancer"
+    },
+    {
+      "id": "b8c2",
+      "username": "oreo",
+      "email": "oreobrownie@gmail.com",
+      "password": "brownie",
+      "role": "client"
+    }
+  ]
+}

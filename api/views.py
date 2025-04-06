@@ -12,6 +12,24 @@ from django.db import transaction
 from decimal import Decimal
 from django.contrib.auth.models import User
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+
+@api_view(["POST"])
+def register_user(request):
+    username = request.data.get("username")
+    email = request.data.get("email")
+    password = request.data.get("password")
+    role = request.data.get("role")  # custom user field if needed
+
+    if User.objects.filter(username=username).exists():
+        return Response({"error": "Username already taken"}, status=400)
+
+    user = User.objects.create_user(username=username, email=email, password=password)
+    # optionally store role in a custom user profile model
+    return Response({"message": "User created"}, status=201)
+
 class BidViewSet(viewsets.ModelViewSet):
     queryset = Bid.objects.all().order_by("-bid_date")
     serializer_class = BidSerializer
