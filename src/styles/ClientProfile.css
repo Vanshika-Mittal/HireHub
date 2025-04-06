@@ -4,15 +4,7 @@
   background-position: center;
   min-height: 85vh;
   padding: 40px 20px;
-}
-
-.profile-card {
-  max-width: 800px;
-  margin: 0 auto;
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
 .profile-header {
@@ -20,98 +12,167 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid palegoldenrod;
 }
 
 .profile-header h1 {
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-  color: #333;
   font-size: 2.5rem;
+  color: #ffffff;
   margin: 0;
 }
 
-.profile-section {
-  margin-bottom: 30px;
+.header-actions {
+  display: flex;
+  gap: 1rem;
 }
 
-.profile-section h2 {
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+.dashboard-btn {
+  background-color: palegoldenrod;
+  color: black;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.dashboard-btn:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.edit-btn {
+  background-color: palegoldenrod;
+  color: black;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.edit-btn:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.profile-form {
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
   color: #333;
-  font-size: 1.5rem;
-  margin-bottom: 15px;
-  border-bottom: 2px solid palegoldenrod;
-  padding-bottom: 5px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: palegoldenrod;
+  box-shadow: 0 0 0 2px rgba(238, 232, 170, 0.2);
+}
+
+.form-group input[disabled] {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.save-btn {
+  background-color: palegoldenrod;
+  color: black;
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.save-btn:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.profile-content {
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .profile-info {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  gap: 2rem;
 }
 
-.info-item {
-  background-color: #f8f9fa;
-  padding: 15px;
+.info-group {
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.info-group h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  border-bottom: 2px solid palegoldenrod;
+  padding-bottom: 0.5rem;
+}
+
+.info-group p {
+  margin: 0.5rem 0;
+  color: #333;
+  line-height: 1.5;
+}
+
+.info-group strong {
+  color: #333;
+  font-weight: 500;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
   border-radius: 8px;
-}
-
-.info-item h3 {
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-  color: #666;
-  font-size: 1rem;
-  margin-bottom: 5px;
-}
-
-.info-item p {
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-  color: #333;
-  font-size: 1.1rem;
-  margin: 0;
-}
-
-.description {
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-  font-size: 1.1rem;
-  color: #333;
-  line-height: 1.6;
-}
-
-.edit-btn, .save-btn {
-  background-color: palegoldenrod;
-  color: black;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-  font-size: 1rem;
-  transition: all 0.3s;
-}
-
-.edit-btn:hover, .save-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.edit-form {
-  display: grid;
-  gap: 20px;
-}
-
-.edit-form input,
-.edit-form textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-  font-size: 1rem;
-}
-
-.edit-form textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-.save-btn {
-  justify-self: end;
+  margin-bottom: 1rem;
+  text-align: center;
 } 

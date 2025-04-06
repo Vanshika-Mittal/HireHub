@@ -1,90 +1,121 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/ClientDashboard.css';
+import { getProjects, getApplications } from '../utils/localStorage';
 
 function ClientDashboard() {
-  // Mock data - in real app, this would come from your backend
-  const stats = {
-    totalProjects: 8,
-    activeProjects: 3,
-    completedProjects: 5,
-    totalSpent: 12000
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [applications, setApplications] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Get all projects created by the current user
+        const userProjects = getProjects();
+        setProjects(userProjects);
+
+        // Get all applications to show application counts
+        const allApplications = getApplications();
+        setApplications(allApplications);
+
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to load projects');
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const getApplicationCount = (projectId) => {
+    return applications.filter(app => app.projectId === projectId).length;
   };
 
-  const recentProjects = [
-    {
-      id: 1,
-      title: 'Website Redesign',
-      freelancer: 'Sarah Johnson',
-      status: 'In Progress',
-      budget: 2500
-    },
-    {
-      id: 2,
-      title: 'Mobile App Development',
-      freelancer: 'Mike Chen',
-      status: 'Completed',
-      budget: 5000
-    },
-    {
-      id: 3,
-      title: 'Content Marketing',
-      freelancer: 'Emily Davis',
-      status: 'In Progress',
-      budget: 1500
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'open':
+        return 'text-green-600';
+      case 'closed':
+        return 'text-red-600';
+      case 'in-progress':
+        return 'text-blue-600';
+      default:
+        return 'text-gray-600';
     }
-  ];
+  };
+
+  if (loading) {
+    return <div className="loading">Loading projects...</div>;
+  }
+
+  if (error) {
+    return <div className="error">{error}</div>;
+  }
 
   return (
     <div className="dashboard-container">
-      <div className="welcome-section">
-        <h1>Welcome back, Client!</h1>
-        <p>Manage your projects and find new talent</p>
+      <div className="dashboard-header">
+        <h1>My Projects</h1>
+        <div className="header-actions">
+          <Link to="/profile" className="profile-btn">View Profile</Link>
+          <Link to="/jobPosting" className="post-btn">Post New Job</Link>
+        </div>
       </div>
 
-      <div className="dashboard-grid">
-        <div className="dashboard-card">
-          <h2>Overview</h2>
-          <div className="stats-grid">
-            <div className="stat-item">
-              <h3>Total Projects</h3>
-              <p>{stats.totalProjects}</p>
-            </div>
-            <div className="stat-item">
-              <h3>Active Projects</h3>
-              <p>{stats.activeProjects}</p>
-            </div>
-            <div className="stat-item">
-              <h3>Completed</h3>
-              <p>{stats.completedProjects}</p>
-            </div>
-            <div className="stat-item">
-              <h3>Total Spent</h3>
-              <p>${stats.totalSpent}</p>
-            </div>
-          </div>
+      <div className="stats-container">
+        <div className="stat-card">
+          <h3>Total Projects</h3>
+          <p>{projects.length}</p>
         </div>
+        <div className="stat-card">
+          <h3>Open Projects</h3>
+          <p>{projects.filter(project => project.status === 'open').length}</p>
+        </div>
+        <div className="stat-card">
+          <h3>In Progress</h3>
+          <p>{projects.filter(project => project.status === 'in-progress').length}</p>
+        </div>
+        <div className="stat-card">
+          <h3>Total Applications</h3>
+          <p>{applications.length}</p>
+        </div>
+      </div>
 
-        <div className="dashboard-card">
-          <h2>Recent Projects</h2>
-          <div className="recent-projects">
-            {recentProjects.map(project => (
-              <div key={project.id} className="project-item">
-                <h3>{project.title}</h3>
-                <p>Freelancer: {project.freelancer}</p>
-                <p>Status: {project.status}</p>
-                <p>Budget: ${project.budget}</p>
+      <div className="projects-container">
+        <h2>Recent Projects</h2>
+        {projects.length === 0 ? (
+          <div className="no-projects">
+            <p>You haven't posted any jobs yet.</p>
+            <Link to="/jobPosting" className="post-btn">Post a Job</Link>
+          </div>
+        ) : (
+          <div className="projects-grid">
+            {projects.map((project) => (
+              <div key={project.id} className="project-card">
+                <div className="project-header">
+                  <h3>{project.title}</h3>
+                  <span className={`status-badge ${getStatusColor(project.status)}`}>
+                    {project.status}
+                  </span>
+                </div>
+                <div className="project-details">
+                  <p><strong>Budget:</strong> ${project.budget}</p>
+                  <p><strong>Applications:</strong> {getApplicationCount(project.id)}</p>
+                  <p><strong>Posted On:</strong> {new Date(project.createdAt).toLocaleDateString()}</p>
+                </div>
+                <div className="project-actions">
+                  <Link to={`/project/${project.id}`} className="view-btn">View Details</Link>
+                  <Link to={`/project/${project.id}/applications`} className="applications-btn">
+                    View Applications
+                  </Link>
+                </div>
               </div>
             ))}
           </div>
-          <Link to="/jobPosting" className="view-all-btn">Post New Project</Link>
-        </div>
-
-        <div className="dashboard-card">
-          <h2>Quick Actions</h2>
-          <div className="quick-actions">
-            <Link to="/jobPosting" className="action-btn">Post New Job</Link>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
