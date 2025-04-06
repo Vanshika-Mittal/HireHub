@@ -1,29 +1,39 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import { getUser } from '../utils/localStorage';
 import '../styles/jobListing.css';
 
 const JobListing = () => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [jobs, setJobs] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [availableSkills, setAvailableSkills] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchJobs = async () => {
-      const { data, error } = await supabase
-        .from('jobs')
-        .select('*');
+      try {
+        const { data, error } = await supabase
+          .from('jobs')
+          .select('*')
+          .order('posted_date', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching jobs:', error.message);
-      } else {
+        if (error) throw error;
+
         setJobs(data);
         setFilteredJobs(data);
 
-        // Extract unique skills from jobs
+        // Extract unique skills from all jobs
         const skills = [...new Set(data.flatMap(job => job.skills_required))];
         setAvailableSkills(skills);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -41,10 +51,10 @@ const JobListing = () => {
       );
     }
 
-    // Filter by selected skills
+    // Filter by selected skills - show jobs that have ANY of the selected skills
     if (selectedSkills.length > 0) {
       filtered = filtered.filter(job => 
-        selectedSkills.every(skill => job.skills_required?.includes(skill) || false)
+        selectedSkills.some(skill => job.skills_required?.includes(skill))
       );
     }
 
@@ -58,6 +68,27 @@ const JobListing = () => {
         : [...prev, skill]
     );
   };
+
+  const handleApply = (jobId) => {
+    const user = getUser();
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    if (user.role !== 'freelancer') {
+      setError('Only freelancers can apply for jobs');
+      return;
+    }
+    navigate(`/apply/${jobId}`);
+  };
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="error">{error}</div>;
+  }
 
   return (
     <div className="job-listing-container">
@@ -87,7 +118,12 @@ const JobListing = () => {
                 <p className="job-location">Budget: ${job.budget}</p>
                 <p className="job-status">Status: {job.status}</p>
                 <p className="job-date">Posted on: {new Date(job.posted_date).toLocaleDateString()}</p>
-                <button className="apply-button">Apply Now</button>
+                <button 
+                  className="apply-button"
+                  onClick={() => handleApply(job.project_id)}
+                >
+                  Apply Now
+                </button>
               </div>
             ))
           ) : (
