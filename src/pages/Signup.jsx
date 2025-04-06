@@ -1,68 +1,118 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
+import { supabase } from "../supabaseClient";
 import "../styles/Auth.css";
 
 function Signup({ setIsAuthenticated, setUserRole }) {
-  const [formData, setFormData] = useState({ username: "", email: "", password: "", role: "client" });
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    role: "freelancer"
+  });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
+
     try {
-      const response = await api.post("/users", formData);
-      if (response.status === 201) {
-        // Set token and role
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("role", formData.role);
-        setIsAuthenticated(true);
-        setUserRole(formData.role);
-        
-        // Create blank profile for new users
-        const blankProfile = formData.role === 'freelancer' ? {
-          name: "",
-          email: "",
-          location: "",
-          age: "",
-          basePayPerHour: "",
-          description: "",
-          skills: []
-        } : {
-          name: "",
-          email: "",
-          companyName: "",
-          companySize: "",
-          industry: "",
-          website: "",
-          description: ""
-        };
-        localStorage.setItem(`${formData.role}Profile`, JSON.stringify(blankProfile));
-        
-        // New user, redirect to questionnaire
-        navigate("/dashboard");
+      // First check if user already exists
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', formData.email)
+        .maybeSingle();
+
+      if (existingUser) {
+        throw new Error('Email already registered');
       }
+
+      // Insert new user into users table
+      const { data, error } = await supabase
+        .from('users')
+        .insert([{
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Signup error:', error);
+        throw new Error('Signup failed. Please try again.');
+      }
+
+      // Set authentication state
+      setIsAuthenticated(true);
+      setUserRole(formData.role);
+
+      // Store user data in localStorage
+      localStorage.setItem('user', JSON.stringify({
+        id: data.id,
+        username: data.username,
+        email: data.email,
+        role: data.role
+      }));
+
+      // Navigate to dashboard
+      navigate("/dashboard");
     } catch (err) {
-      setError("Signup failed. Try again.");
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
-  
+
   return (
     <div className="auth-container">
       <div className="auth-box">
         <h2>Sign Up</h2>
         {error && <p className="error-message">{error}</p>}
         <form onSubmit={handleSubmit}>
-          <input type="text" name="username" placeholder="Username" onChange={handleChange} required />
-          <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
-          <input type="password" name="password" placeholder="Password" onChange={handleChange} required />
-          <select name="role" onChange={handleChange}>
-            <option value="client">Client</option>
+          <input 
+            type="text" 
+            name="username" 
+            placeholder="Username" 
+            onChange={handleChange} 
+            value={formData.username}
+            required 
+          />
+          <input 
+            type="email" 
+            name="email" 
+            placeholder="Email" 
+            onChange={handleChange} 
+            value={formData.email}
+            required 
+          />
+          <input 
+            type="password" 
+            name="password" 
+            placeholder="Password" 
+            onChange={handleChange} 
+            value={formData.password}
+            required 
+          />
+          <select 
+            name="role" 
+            onChange={handleChange} 
+            value={formData.role}
+            required
+          >
             <option value="freelancer">Freelancer</option>
+            <option value="client">Client</option>
           </select>
-          <button type="submit">Sign Up</button>
+          <button type="submit" disabled={loading}>
+            {loading ? 'Signing up...' : 'Sign Up'}
+          </button>
         </form>
         <p>Already have an account? <a href="/login">Login</a></p>
       </div>
