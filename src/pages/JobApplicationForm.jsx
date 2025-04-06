@@ -6,7 +6,7 @@ import '../styles/JobApplicationForm.css';
 function JobApplicationForm() {
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [project, setProject] = useState(null);
   const [formData, setFormData] = useState({
@@ -18,16 +18,30 @@ function JobApplicationForm() {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const { data, error } = await supabase
-          .from('projects')
+        setLoading(true);
+        setError('');
+
+        // Get current user
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError) throw userError;
+        if (!user) throw new Error('Please login to apply for jobs');
+
+        // Fetch project details
+        const { data: projectData, error: projectError } = await supabase
+          .from('jobs')
           .select('*')
           .eq('id', projectId)
           .single();
 
-        if (error) throw error;
-        setProject(data);
+        if (projectError) throw projectError;
+        if (!projectData) throw new Error('Project not found');
+
+        setProject(projectData);
       } catch (err) {
-        setError('Failed to load project details');
+        console.error('Error fetching project:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -48,47 +62,74 @@ function JobApplicationForm() {
     setError('');
 
     try {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      // Get current user from Supabase
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
+      if (!user) throw new Error('Please login to apply');
 
       // Check if user has already applied
-      const { data: existingApplication } = await supabase
+      const { data: existingApplication, error: checkError } = await supabase
         .from('applications')
         .select('id')
         .eq('project_id', projectId)
         .eq('freelancer_id', user.id)
         .single();
 
-      if (existingApplication) {
-        throw new Error('You have already applied for this project');
-      }
+      if (checkError && checkError.code !== 'PGRST116') throw checkError;
+      if (existingApplication) throw new Error('You have already applied for this project');
 
-      // Create application in database
-      const { error } = await supabase.from('applications').insert([
-        {
-          project_id: projectId,
-          freelancer_id: user.id,
-          cover_letter: formData.cover_letter,
-          proposed_budget: parseFloat(formData.proposed_budget),
-          estimated_duration: formData.estimated_duration,
-          status: 'pending',
-        },
-      ]);
+      // Create new application
+      const { error: insertError } = await supabase
+        .from('applications')
+        .insert([
+          {
+            project_id: projectId,
+            freelancer_id: user.id,
+            cover_letter: formData.cover_letter,
+            proposed_budget: parseFloat(formData.proposed_budget),
+            estimated_duration: formData.estimated_duration,
+            status: 'pending',
+          },
+        ]);
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
-      // Redirect to freelancer dashboard
-      navigate('/freelancerDashboard');
+      // Update job to mark as applied
+      const { error: updateError } = await supabase
+        .from('jobs')
+        .update({ has_applied: true })
+        .eq('id', projectId);
+
+      if (updateError) throw updateError;
+
+      // Redirect to dashboard
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message);
+      console.error('Error submitting application:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  if (!project) {
+  if (loading) {
     return <div className="loading">Loading project details...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="application-container">
+        <div className="error">{error}</div>
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="application-container">
+        <div className="error">Project not found</div>
+      </div>
+    );
   }
 
   return (
@@ -100,10 +141,9 @@ function JobApplicationForm() {
         <div className="project-details">
           <h2>Project Details</h2>
           <p><strong>Budget:</strong> ${project.budget}</p>
-          <p><strong>Deadline:</strong> {new Date(project.deadline).toLocaleDateString()}</p>
           <p><strong>Required Skills:</strong></p>
           <div className="skills-list">
-            {project.required_skills.map((skill) => (
+            {project.required_skills?.map((skill) => (
               <span key={skill} className="skill-tag">
                 {skill}
               </span>

@@ -1,16 +1,66 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import '../styles/Dashboard.css';
 
-function Dashboard() {
+const Dashboard = () => {
+  const [activeTab, setActiveTab] = useState('all');
+  const [jobs, setJobs] = useState([]);
+  const [recentlyApplied, setRecentlyApplied] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const user = supabase.auth.user();
+
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  const fetchJobs = async () => {
+    try {
+      // Get current user
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      if (!currentUser) {
+        throw new Error('Please login to view jobs');
+      }
+
+      // Get jobs from localStorage
+      const jobsData = JSON.parse(localStorage.getItem('jobs') || '[]');
+      setJobs(jobsData);
+
+      // Get applications from localStorage
+      const applications = JSON.parse(localStorage.getItem('applications') || '[]');
+      
+      // Filter recently applied jobs (last 5 applications)
+      const userApplications = applications
+        .filter(app => app.freelancer_id === currentUser.id)
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, 5);
+
+      // Get job details for recently applied jobs
+      const recentlyAppliedJobs = userApplications.map(app => {
+        const job = jobsData.find(j => j.id === app.project_id);
+        return {
+          ...job,
+          application_date: app.created_at,
+          application_status: app.status
+        };
+      });
+
+      setRecentlyApplied(recentlyAppliedJobs);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/');
   };
+
+  if (loading) return <div className="loading">Loading...</div>;
+  if (error) return <div className="error">{error}</div>;
 
   return (
     <div className="dashboard-container">
@@ -49,6 +99,6 @@ function Dashboard() {
       </div>
     </div>
   );
-}
+};
 
 export default Dashboard; 

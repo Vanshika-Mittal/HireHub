@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
-import JobListing from './pages/JobListing';
+import JobListing from './pages/jobListing';
 import JobPosting from './pages/JobPosting';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -13,6 +13,8 @@ import FreelancerProfile from './pages/FreelancerProfile';
 import ClientProfile from './pages/ClientProfile';
 import ProfileQuestionnaire from './pages/ProfileQuestionnaire';
 import ClientQuestionnaire from './pages/ClientQuestionnaire';
+import JobApplicationForm from './pages/JobApplicationForm';
+import ProjectApplications from './pages/ProjectApplications';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -72,6 +74,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/jobPosting" element={<JobPosting />} />
         <Route path="/jobListing" element={<JobListing />} />
+        <Route path="/job-application/:projectId" element={<JobApplicationForm />} />
         <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} setUserRole={setUserRole} />} />
         <Route path="/signup" element={<Signup setIsAuthenticated={setIsAuthenticated} setUserRole={setUserRole} />} />
         {isAuthenticated && (
@@ -88,6 +91,7 @@ function App() {
             <Route path="/profile" element={userRole === 'freelancer' ? <FreelancerProfile /> : <ClientProfile />} />
           </>
         )}
+        <Route path="/project-applications/:projectId" element={<ProjectApplications />} />
       </Routes>
     </Router>
   );

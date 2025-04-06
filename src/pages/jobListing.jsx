@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import { useNavigate } from 'react-router-dom';
 import '../styles/jobListing.css';
 
 const JobListing = () => {
@@ -8,6 +9,7 @@ const JobListing = () => {
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [availableSkills, setAvailableSkills] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -59,6 +61,10 @@ const JobListing = () => {
     );
   };
 
+  const handleApply = (projectId) => {
+    navigate(`/job-application/${projectId}`);
+  };
+
   return (
     <div className="job-listing-container">
       <div className="search-section">
@@ -87,7 +93,12 @@ const JobListing = () => {
                 <p className="job-location">Budget: ${job.budget}</p>
                 <p className="job-status">Status: {job.status}</p>
                 <p className="job-date">Posted on: {new Date(job.posted_date).toLocaleDateString()}</p>
-                <button className="apply-button">Apply Now</button>
+                <button 
+                  className="apply-button"
+                  onClick={() => handleApply(job.project_id)}
+                >
+                  Apply Now
+                </button>
               </div>
             ))
           ) : (
