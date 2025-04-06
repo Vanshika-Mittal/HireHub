@@ -11,27 +11,34 @@ function ClientProfile() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    company_name: "",
-    company_size: "",
+    companyName: "",
+    companySize: "",
     industry: "",
     website: "",
     description: "",
   });
 
   useEffect(() => {
-    // Simulate loading profile data
-    setTimeout(() => {
-      setFormData({
-        name: "Jane Smith",
-        email: "jane@example.com",
-        company_name: "Tech Solutions Inc.",
-        company_size: "50-100",
-        industry: "Technology",
-        website: "www.techsolutions.com",
-        description: "A leading technology company specializing in software development and IT solutions",
-      });
-      setLoading(false);
-    }, 1000);
+    // Get user data from localStorage
+    const user = getUser();
+    const profile = localStorage.getItem('clientProfile');
+    
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        email: user.email
+      }));
+    }
+    
+    if (profile) {
+      const profileData = JSON.parse(profile);
+      setFormData(prev => ({
+        ...prev,
+        ...profileData
+      }));
+    }
+    
+    setLoading(false);
   }, []);
 
   const handleInputChange = (e) => {
@@ -44,8 +51,14 @@ function ClientProfile() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // In a real app, this would update the profile in the database
-    setIsEditing(false);
+    try {
+      // Save profile to localStorage
+      localStorage.setItem('clientProfile', JSON.stringify(formData));
+      setIsEditing(false);
+    } catch (error) {
+      setError("Failed to save profile. Please try again.");
+      console.error('Error saving profile:', error);
+    }
   };
 
   if (loading) {
@@ -87,35 +100,37 @@ function ClientProfile() {
 
           <div className="form-group">
             <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-              disabled
-            />
+            <div className="email-field">
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                readOnly
+                className="read-only"
+              />
+              <span className="email-note">Email cannot be changed as it's linked to your account</span>
+            </div>
           </div>
 
           <div className="form-group">
-            <label htmlFor="company_name">Company Name</label>
+            <label htmlFor="companyName">Company Name</label>
             <input
               type="text"
-              id="company_name"
-              name="company_name"
-              value={formData.company_name}
+              id="companyName"
+              name="companyName"
+              value={formData.companyName}
               onChange={handleInputChange}
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="company_size">Company Size</label>
+            <label htmlFor="companySize">Company Size</label>
             <select
-              id="company_size"
-              name="company_size"
-              value={formData.company_size}
+              id="companySize"
+              name="companySize"
+              value={formData.companySize}
               onChange={handleInputChange}
               required
             >
@@ -180,8 +195,8 @@ function ClientProfile() {
 
             <div className="info-group">
               <h3>Company Information</h3>
-              <p><strong>Company Name:</strong> {formData.company_name}</p>
-              <p><strong>Company Size:</strong> {formData.company_size}</p>
+              <p><strong>Company Name:</strong> {formData.companyName}</p>
+              <p><strong>Company Size:</strong> {formData.companySize}</p>
               <p><strong>Industry:</strong> {formData.industry}</p>
               <p><strong>Website:</strong> {formData.website}</p>
             </div>

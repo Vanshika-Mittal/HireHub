@@ -13,25 +13,35 @@ function FreelancerProfile() {
     email: "",
     location: "",
     age: "",
-    base_pay_per_hour: "",
+    basePayPerHour: "",
     description: "",
     skills: [],
   });
+  const [skillsInput, setSkillsInput] = useState("");
 
   useEffect(() => {
-    // Simulate loading profile data
-    setTimeout(() => {
-      setFormData({
-        name: "John Doe",
-        email: "john@example.com",
-        location: "New York, USA",
-        age: "28",
-        base_pay_per_hour: "50",
-        description: "Experienced web developer with 5 years of experience in React and Node.js",
-        skills: ["React", "Node.js", "JavaScript", "HTML", "CSS"],
-      });
-      setLoading(false);
-    }, 1000);
+    // Get user data from localStorage
+    const user = getUser();
+    const profile = localStorage.getItem('freelancerProfile');
+    
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        email: user.email
+      }));
+    }
+    
+    if (profile) {
+      const profileData = JSON.parse(profile);
+      setFormData(prev => ({
+        ...prev,
+        ...profileData
+      }));
+      // Set the skills input value
+      setSkillsInput(profileData.skills.join(', '));
+    }
+    
+    setLoading(false);
   }, []);
 
   const handleInputChange = (e) => {
@@ -42,10 +52,28 @@ function FreelancerProfile() {
     }));
   };
 
+  const handleSkillsInputChange = (e) => {
+    const value = e.target.value;
+    setSkillsInput(value);
+    
+    // Update skills array whenever input changes
+    const skills = value.split(',').map(skill => skill.trim()).filter(skill => skill);
+    setFormData(prev => ({
+      ...prev,
+      skills
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // In a real app, this would update the profile in the database
-    setIsEditing(false);
+    try {
+      // Save profile to localStorage
+      localStorage.setItem('freelancerProfile', JSON.stringify(formData));
+      setIsEditing(false);
+    } catch (error) {
+      setError("Failed to save profile. Please try again.");
+      console.error('Error saving profile:', error);
+    }
   };
 
   if (loading) {
@@ -87,15 +115,17 @@ function FreelancerProfile() {
 
           <div className="form-group">
             <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-              disabled
-            />
+            <div className="email-field">
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                readOnly
+                className="read-only"
+              />
+              <span className="email-note">Email cannot be changed as it's linked to your account</span>
+            </div>
           </div>
 
           <div className="form-group">
@@ -118,22 +148,22 @@ function FreelancerProfile() {
               name="age"
               value={formData.age}
               onChange={handleInputChange}
-              min="18"
               required
+              min="18"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="base_pay_per_hour">Base Pay per Hour ($)</label>
+            <label htmlFor="basePayPerHour">Base Pay Per Hour ($)</label>
             <input
               type="number"
-              id="base_pay_per_hour"
-              name="base_pay_per_hour"
-              value={formData.base_pay_per_hour}
+              id="basePayPerHour"
+              name="basePayPerHour"
+              value={formData.basePayPerHour}
               onChange={handleInputChange}
+              required
               min="0"
               step="0.01"
-              required
             />
           </div>
 
@@ -149,8 +179,16 @@ function FreelancerProfile() {
           </div>
 
           <div className="form-group">
-            <label>Skills</label>
-            <div className="skills">
+            <label htmlFor="skills">Skills (comma-separated)</label>
+            <input
+              type="text"
+              id="skills"
+              name="skills"
+              value={skillsInput}
+              onChange={handleSkillsInputChange}
+              placeholder="e.g., JavaScript, React, Node.js"
+            />
+            <div className="skills-preview">
               {formData.skills.map((skill, index) => (
                 <span key={index} className="skill-tag">
                   {skill}
@@ -174,18 +212,17 @@ function FreelancerProfile() {
               <p><strong>Email:</strong> {formData.email}</p>
               <p><strong>Location:</strong> {formData.location}</p>
               <p><strong>Age:</strong> {formData.age}</p>
+              <p><strong>Base Pay Per Hour:</strong> ${formData.basePayPerHour}</p>
             </div>
 
             <div className="info-group">
-              <h3>Professional Information</h3>
-              <p><strong>Base Pay per Hour:</strong> ${formData.base_pay_per_hour}</p>
-              <p><strong>Description:</strong></p>
+              <h3>Description</h3>
               <p>{formData.description}</p>
             </div>
 
             <div className="info-group">
               <h3>Skills</h3>
-              <div className="skills">
+              <div className="skills-list">
                 {formData.skills.map((skill, index) => (
                   <span key={index} className="skill-tag">
                     {skill}
