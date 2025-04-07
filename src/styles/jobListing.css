@@ -69,7 +69,7 @@
 }
 
 .skill-tag.selected {
-    background-color: palegoldenrod;
+    background-color: rgb(188, 183, 131);
     color: black;
 }
 
