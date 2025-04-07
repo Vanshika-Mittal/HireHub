@@ -63,6 +63,13 @@
       "email": "oreobrownie@gmail.com",
       "password": "brownie",
       "role": "client"
+    },
+    {
+      "id": "68c8",
+      "username": "abc",
+      "email": "abc@gmail.com",
+      "password": "abc",
+      "role": "client"
     }
   ]
 }
