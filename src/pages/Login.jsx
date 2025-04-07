@@ -17,48 +17,39 @@ function Login({ setIsAuthenticated, setUserRole }) {
     setError("");
 
     try {
-      console.log("Attempting login with:", formData);
-
-      // Query the users table with exact email and password match
-      const { data: users, error: userError } = await supabase
+      // Query the users table directly
+      const { data: users, error: queryError } = await supabase
         .from('users')
         .select('*')
         .eq('email', formData.email)
-        .eq('password', formData.password)
-        .single();
+        .eq('password', formData.password);
 
-      console.log("User query result:", { users, userError });
+      if (queryError) throw queryError;
 
-      if (userError) {
-        console.error("User query error:", userError);
-        throw userError;
+      if (users && users.length > 0) {
+        const user = users[0];
+        console.log('Login successful for user:', user);
+        
+        // Store the complete user object in localStorage
+        localStorage.setItem('currentUser', JSON.stringify({
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          full_name: user.full_name
+        }));
+        
+        // Set authentication state
+        setIsAuthenticated(true);
+        setUserRole(user.role);
+        
+        // Navigate to dashboard
+        navigate('/dashboard');
+      } else {
+        setError('Invalid email or password');
       }
-
-      if (!users) {
-        setError("Invalid email or password");
-        return;
-      }
-
-      console.log("Login successful for user:", users);
-
-      // Store user data in localStorage
-      localStorage.setItem("user", JSON.stringify(users));
-      localStorage.setItem("role", users.role);
-      localStorage.setItem("token", users.token || "mock-token");
-      setIsAuthenticated(true);
-      setUserRole(users.role);
-
-      // Check if user has a profile
-      const profile = localStorage.getItem(`${users.role}Profile`);
-      if (!profile) {
-        // Set isNewUser flag to true
-        localStorage.setItem("isNewUser", "true");
-      }
-
-      navigate("/dashboard");
     } catch (err) {
-      console.error("Login error:", err);
-      setError("Login failed. Please try again.");
+      console.error('Login error:', err);
+      setError('An error occurred during login');
     } finally {
       setLoading(false);
     }

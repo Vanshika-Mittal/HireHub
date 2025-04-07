@@ -6,7 +6,6 @@ function JobPosting() {
   const [jobData, setJobData] = useState({
     project_name: "",
     description: "",
-    client_id: "",
     budget: "",
     skills_required: "",
     status: "open",
@@ -20,14 +19,29 @@ function JobPosting() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const skillsArray = jobData.skills_required
-      .split(",")
-      .map((skill) => skill.trim());
-
     try {
+      // Get current user from localStorage
+      const currentUserStr = localStorage.getItem('currentUser');
+      if (!currentUserStr) {
+        throw new Error("Please login to post a job");
+      }
+
+      const currentUser = JSON.parse(currentUserStr);
+      if (!currentUser.id) {
+        throw new Error("Invalid user data");
+      }
+      
+      const skillsArray = jobData.skills_required
+        .split(",")
+        .map((skill) => skill.trim());
+
       const { data, error } = await supabase
         .from("jobs")
-        .insert([{ ...jobData, skills_required: skillsArray }]);
+        .insert([{ 
+          ...jobData, 
+          skills_required: skillsArray,
+          client_id: currentUser.id
+        }]);
 
       if (error) throw error;
 
@@ -35,14 +49,13 @@ function JobPosting() {
       setJobData({
         project_name: "",
         description: "",
-        client_id: "",
         budget: "",
         skills_required: "",
         status: "open",
       });
     } catch (error) {
       console.error("Error posting job:", error.message);
-      alert("Failed to post job. Please try again.");
+      alert(error.message || "Failed to post job. Please try again.");
     }
   };
 
@@ -65,15 +78,6 @@ function JobPosting() {
             <textarea
               name="description"
               value={jobData.description}
-              onChange={handleChange}
-              required
-            />
-
-            <label>Client ID:</label>
-            <input
-              type="text"
-              name="client_id"
-              value={jobData.client_id}
               onChange={handleChange}
               required
             />
