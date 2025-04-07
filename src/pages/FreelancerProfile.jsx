@@ -94,7 +94,6 @@ function FreelancerProfile() {
               value={formData.email}
               onChange={handleInputChange}
               required
-              disabled
             />
           </div>
 

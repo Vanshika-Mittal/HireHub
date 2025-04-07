@@ -3,24 +3,20 @@ import "../styles/Navbar.css";
 import { useState, useEffect } from "react";
 
 function Navbar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const location = useLocation();
   const isHomePage = location.pathname === '/';
   const isDashboard = location.pathname === '/dashboard';
+  const isProfile = location.pathname === '/profile';
 
   useEffect(() => {
-    // Check if user is logged in by looking for the token
-    const token = localStorage.getItem('token');
+    // Get user role from localStorage
     const role = localStorage.getItem('role');
-    setIsLoggedIn(!!token);
     setUserRole(role);
 
     // Add event listener for storage changes
     const handleStorageChange = () => {
-      const token = localStorage.getItem('token');
       const role = localStorage.getItem('role');
-      setIsLoggedIn(!!token);
       setUserRole(role);
     };
 
@@ -56,14 +52,14 @@ function Navbar() {
       )}
 
       <div className="navbar-right">
-        {isLoggedIn ? (
+        {isDashboard || isProfile ? (
           <div className="auth-links">
             <Link to="/profile" className="nav-link">Profile</Link>
             <button 
               onClick={() => {
                 localStorage.removeItem('token');
                 localStorage.removeItem('role');
-                setIsLoggedIn(false);
+                localStorage.removeItem('currentUser');
                 window.location.href = '/';
               }} 
               className="logout-btn"
@@ -71,9 +67,9 @@ function Navbar() {
               Logout
             </button>
           </div>
-        ) : (
+        ) : isHomePage ? (
           <Link to="/login" className="login-btn">Login</Link>
-        )}
+        ) : null}
       </div>
     </nav>
   );
