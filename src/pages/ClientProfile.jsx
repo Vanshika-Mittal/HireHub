@@ -94,7 +94,6 @@ function ClientProfile() {
               value={formData.email}
               onChange={handleInputChange}
               required
-              disabled
             />
           </div>
 
