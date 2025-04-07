@@ -43,11 +43,16 @@ const JobListing = () => {
       );
     }
 
-    // Filter by selected skills
+    // Filter by selected skills - show jobs that have any of the selected skills in their tags
     if (selectedSkills.length > 0) {
-      filtered = filtered.filter(job => 
-        selectedSkills.every(skill => job.skills_required?.includes(skill) || false)
-      );
+      filtered = filtered.filter(job => {
+        const jobSkills = job.skills_required || [];
+        return selectedSkills.some(selectedSkill => 
+          jobSkills.some(jobSkill => 
+            jobSkill.toLowerCase().includes(selectedSkill.toLowerCase())
+          )
+        );
+      });
     }
 
     setFilteredJobs(filtered);
