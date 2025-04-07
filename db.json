@@ -70,6 +70,13 @@
       "email": "abc@gmail.com",
       "password": "abc",
       "role": "client"
+    },
+    {
+      "id": "6823",
+      "username": "abc",
+      "email": "abc@gmail.com",
+      "password": "abc",
+      "role": "client"
     }
   ]
 }

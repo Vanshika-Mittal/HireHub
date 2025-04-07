@@ -6,6 +6,7 @@ function JobPosting() {
   const [jobData, setJobData] = useState({
     project_name: "",
     description: "",
+    client_id: "",
     budget: "",
     skills_required: "",
     status: "open",
@@ -19,10 +20,6 @@ function JobPosting() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Get current user from localStorage
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    const client_id = currentUser?.id || 1; // Use user's ID or default to 1 if not found
-
     const skillsArray = jobData.skills_required
       .split(",")
       .map((skill) => skill.trim());
@@ -30,12 +27,7 @@ function JobPosting() {
     try {
       const { data, error } = await supabase
         .from("jobs")
-        .insert([{ 
-          ...jobData, 
-          skills_required: skillsArray,
-          client_id,
-          posted_date: new Date().toISOString()
-        }]);
+        .insert([{ ...jobData, skills_required: skillsArray }]);
 
       if (error) throw error;
 
@@ -43,6 +35,7 @@ function JobPosting() {
       setJobData({
         project_name: "",
         description: "",
+        client_id: "",
         budget: "",
         skills_required: "",
         status: "open",
@@ -72,6 +65,15 @@ function JobPosting() {
             <textarea
               name="description"
               value={jobData.description}
+              onChange={handleChange}
+              required
+            />
+
+            <label>Client ID:</label>
+            <input
+              type="text"
+              name="client_id"
+              value={jobData.client_id}
               onChange={handleChange}
               required
             />

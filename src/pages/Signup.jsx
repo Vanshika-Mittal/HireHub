@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
+import { supabase } from "../supabaseClient";
 import "../styles/Auth.css";
 
 function Signup({ setIsAuthenticated, setUserRole }) {
@@ -13,10 +13,45 @@ function Signup({ setIsAuthenticated, setUserRole }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post("/users", formData);
-      if (response.status === 201) {
-        // Set token and role
-        localStorage.setItem("token", response.data.token);
+      // Check if user already exists
+      const { data: existingUser, error: checkError } = await supabase
+        .from("users")
+        .select("email")
+        .eq("email", formData.email)
+        .single();
+
+      if (checkError && checkError.code !== "PGRST116") {
+        throw checkError;
+      }
+
+      if (existingUser) {
+        setError("Email already exists. Please use a different email.");
+        return;
+      }
+
+      // Insert new user into the users table
+      const { data: newUser, error: insertError } = await supabase
+        .from("users")
+        .insert([
+          {
+            username: formData.username,
+            email: formData.email,
+            password: formData.password,
+            role: formData.role,
+            created_at: new Date().toISOString()
+          }
+        ])
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error("Error inserting user:", insertError);
+        throw insertError;
+      }
+
+      if (newUser) {
+        // Store user data in localStorage
+        localStorage.setItem("currentUser", JSON.stringify(newUser));
         localStorage.setItem("role", formData.role);
         setIsAuthenticated(true);
         setUserRole(formData.role);
@@ -41,11 +76,12 @@ function Signup({ setIsAuthenticated, setUserRole }) {
         };
         localStorage.setItem(`${formData.role}Profile`, JSON.stringify(blankProfile));
         
-        // New user, redirect to questionnaire
+        // Navigate to dashboard
         navigate("/dashboard");
       }
     } catch (err) {
-      setError("Signup failed. Try again.");
+      console.error("Signup error:", err);
+      setError(err.message || "Signup failed. Try again.");
     }
   };
   
